@@ -1,0 +1,54 @@
+// Version of the Protocol Buffers
+syntax = "proto3";
+
+// The package specification is mandatory,
+// and is used as part of the :path pseudo-header in HTTP/2.
+package deepthought;
+
+// The option specification is literally optional and does not have to be.
+// The following example specifies the package name for generating the Go code.
+option go_package = "github.com/kou164nkn/grpc-sample/go/deepthought";
+
+/**
+ * BootRequest is the message of Boot RPC request.
+ * it is currently empty, but we will define it so that it can be extended.
+ */
+message BootRequest {}
+
+/**
+ * BootResponse is the message of Boot RPC response.
+ */
+message BootResponse {
+  string message = 1; // The field must have an identifier greater than or equal to 1.
+}
+
+/**
+ * InferRequest is the message of Infer RPC request.
+ */
+message InferRequest {
+  string query = 1;
+}
+
+/**
+ * InferResponse is the message of Infer RPC response.
+ */
+message InferResponse {
+  sint64 answer = 1; // sint is signed integer that efficientyly encodes negative numbers.
+  repeated string description = 2; // If you add `repeated`, you can pass an array.
+}
+
+/**
+ * Compute is a gRPC service.
+ * it defines two RPCs.
+ */
+service Compute {
+  // Compute will start trying the moment it boots,
+  // so it will continue to stream responses until you cancel it.
+  rpc Boot(BootRequest) returns (stream BootResponse);
+
+  // Infer answers any questions.
+  // If the question is about `Life`, `Universe`, and `Everything`,
+  // it requires 7.5 million years, or 750 milliseconds of calculation.
+  // This RPC is Unary RPC becouse it doesn't have a `stream` attached to the message.
+  rpc Infer(InferRequest) returns (InferResponse);
+}
