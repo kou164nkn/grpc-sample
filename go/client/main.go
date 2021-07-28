@@ -20,6 +20,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	err = callInfer()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func subMain() error {
@@ -69,5 +75,35 @@ func subMain() error {
 		}
 		fmt.Printf("Boot: %s\n", resp.Message)
 	}
+	return nil
+}
+
+func callInfer() error {
+	if len(os.Args) > 2 {
+		return errors.New("usage: client HOST:PORT")
+	}
+	addr := os.Args[1]
+
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	cc := deepthought.NewComputeClient(conn)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	go func(cancel func()) {
+		time.Sleep(2500 * time.Millisecond)
+		cancel()
+	}(cancel)
+
+	resp, err := cc.Infer(ctx, &deepthought.InferRequest{Query: "Life"})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Infer: %s\n", resp.String())
+	fmt.Printf("Infer Answer: %d\n", resp.GetAnswer())
+	fmt.Printf("Infer Description: %s\n", resp.GetDescription())
 	return nil
 }
