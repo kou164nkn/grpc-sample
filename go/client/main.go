@@ -11,6 +11,7 @@ import (
 	"github.com/kou164nkn/grpc-sample/go/deepthought"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 )
 
@@ -34,9 +35,13 @@ func subMain() error {
 	}
 	addr := os.Args[1]
 
+	kp := keepalive.ClientParameters{
+		Time: 1 * time.Minute,
+	}
+
 	// Connect in plaintext by specifying grpc.WithInsecure().
 	// Don't actually do it because it's a security issue.
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithKeepaliveParams(kp))
 	if err != nil {
 		return err
 	}
@@ -84,7 +89,10 @@ func callInfer() error {
 	}
 	addr := os.Args[1]
 
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	kp := keepalive.ClientParameters{
+		Time: 1 * time.Minute,
+	}
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithKeepaliveParams(kp))
 	if err != nil {
 		return err
 	}
