@@ -20,6 +20,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	err = callInfer()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func subMain() error {
@@ -69,5 +75,43 @@ func subMain() error {
 		}
 		fmt.Printf("Boot: %s\n", resp.Message)
 	}
+	return nil
+}
+
+func callInfer() error {
+	if len(os.Args) > 2 {
+		return errors.New("usage: client HOST:PORT")
+	}
+	addr := os.Args[1]
+
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	cc := deepthought.NewComputeClient(conn)
+
+	// Set the deadline at 2 seconds from now
+	// The Client would call Infer request twice
+	shortDuration := 2000 * time.Millisecond
+	deadline := time.Now().Add(shortDuration)
+
+	ctx, cancel := context.WithDeadline(context.Background(), deadline)
+	defer cancel()
+
+	// gRPC server expects to receive the following messages
+	queryMessages := [...]string{"Life", "Universe", "Everything"}
+
+	for _, msg := range queryMessages {
+		resp, err := cc.Infer(ctx, &deepthought.InferRequest{Query: msg})
+		if err != nil {
+			return nil
+		}
+		fmt.Printf("Infer: %s\n", resp.String())
+		fmt.Printf("Infer Answer: %d\n", resp.GetAnswer())
+		fmt.Printf("Infer Description: %s\n", resp.GetDescription())
+	}
+
 	return nil
 }
