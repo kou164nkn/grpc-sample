@@ -20,16 +20,6 @@ type Server struct {
 // Verify at compile time that the interface has been implemented
 var _ deepthought.ComputeServer = &Server{}
 
-/*
-func (s *Server) Boot(req *deepthought.BootRequest, stream deepthought.Compute_BootServer) error {
-	panic("not implemented")
-}
-
-func (s *Server) Infer(ctx context.Context, req *deepthought.InferRequest) (*deepthought.InferResponse, error) {
-	panic("not implemented")
-}
-*/
-
 func (s *Server) Boot(req *deepthought.BootRequest, stream deepthought.Compute_BootServer) error {
 	for {
 		select {
