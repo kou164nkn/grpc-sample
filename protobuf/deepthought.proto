@@ -13,7 +13,9 @@ option go_package = "github.com/kou164nkn/grpc-sample/go/deepthought";
  * BootRequest is the message of Boot RPC request.
  * it is currently empty, but we will define it so that it can be extended.
  */
-message BootRequest {}
+message BootRequest {
+  bool silent = 1;
+}
 
 /**
  * BootResponse is the message of Boot RPC response.
@@ -34,7 +36,10 @@ message InferRequest {
  */
 message InferResponse {
   sint64 answer = 1; // sint is signed integer that efficientyly encodes negative numbers.
-  repeated string description = 2; // If you add `repeated`, you can pass an array.
+  // repeated string description = 2; // If you add `repeated`, you can pass an array.
+
+  reserved 2;
+  reserved "description";
 }
 
 /**

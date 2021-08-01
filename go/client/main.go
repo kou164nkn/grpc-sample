@@ -118,7 +118,7 @@ func callInfer() error {
 		}
 		fmt.Printf("Infer: %s\n", resp.String())
 		fmt.Printf("Infer Answer: %d\n", resp.GetAnswer())
-		fmt.Printf("Infer Description: %s\n", resp.GetDescription())
+		// fmt.Printf("Infer Description: %s\n", resp.GetDescription())
 	}
 
 	return nil
