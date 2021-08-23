@@ -2,37 +2,17 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
-	"os"
 	"time"
 
 	"github.com/kou164nkn/grpc-sample/go/deepthought"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 )
 
-func CallBoot() error {
-	if len(os.Args) != 2 {
-		return errors.New("usage: client HOST:PORT")
-	}
-	addr := os.Args[1]
-
-	kp := keepalive.ClientParameters{
-		Time: 1 * time.Minute,
-	}
-
-	// Connect in plaintext by specifying grpc.WithInsecure().
-	// Don't actually do it because it's a security issue.
-	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithKeepaliveParams(kp))
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
+func CallBoot(conn *grpc.ClientConn) error {
 	// Create the RPC client fron conn.
 	// Since gRPC uses HTTP/2 streams, multi clients can use the same `conn`.
 	// Also, multiple RPC client methods can be invoked simultaneously.
@@ -69,21 +49,7 @@ func CallBoot() error {
 	return nil
 }
 
-func CallInfer() error {
-	if len(os.Args) > 2 {
-		return errors.New("usage: client HOST:PORT")
-	}
-	addr := os.Args[1]
-
-	kp := keepalive.ClientParameters{
-		Time: 1 * time.Minute,
-	}
-	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithKeepaliveParams(kp))
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
+func CallInfer(conn *grpc.ClientConn) error {
 	cc := deepthought.NewComputeClient(conn)
 
 	// Set the deadline at 2 seconds from now
